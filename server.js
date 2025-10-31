@@ -18,7 +18,13 @@ const { Redis } = require('@upstash/redis');
 
 dotenv.config();
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: ["https://wingovn.netlify.app"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
+app.options("*", cors()); // Preflight
 app.use(express.json());
 app.use(morgan('dev'));
 
