@@ -7,26 +7,26 @@
  * - Export app cho Vercel (serverless)
  */
 
-const express = require('express');
-const cors = require('cors');
-const morgan = require('morgan');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
-const { Redis } = require('@upstash/redis');
-
-dotenv.config();
 const app = express();
-app.use(cors({
-  origin: ["https://wingovn.netlify.app"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-}));
-app.options("*", cors()); // Preflight
+
+// ===== Cấu hình CORS an toàn =====
+const allowedOrigin = "https://wingovn.netlify.app";
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", allowedOrigin);
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
+
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(morgan("dev"));
+
 
 // ===== Kết nối KV (Upstash Redis) =====
 const redis = new Redis({
