@@ -28,7 +28,9 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
   if (req.method === "OPTIONS") {
-    return res.status(200).end();
+    res.statusCode = 200;
+    res.end();
+    return;
   }
   next();
 });
@@ -211,5 +213,19 @@ app.get('/api/health', (req, res) => res.json({ ok: true }));
 if (!process.env.VERCEL) {
   app.listen(3000, () => console.log('Running local at http://localhost:3000'));
 } else {
-  module.exports = app;
+  // Ép header CORS ở tầng handler serverless để tránh bị chặn preflight
+  module.exports = (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+
+    if (req.method === "OPTIONS") {
+      res.statusCode = 200;
+      res.end();
+      return;
+    }
+
+    app(req, res);
+  };
 }
